@@ -4,26 +4,24 @@ import IRoomParams from "../interfaces/IRoomParams.js";
 
 const rooms: Record<string, string[]> = {};
 export const roomHandler = (socket: Socket) => {
-
   const createRoom = () => {
     const roomId = uuidv4();
     socket.join(roomId);
-    rooms[roomId] = []
+    rooms[roomId] = [];
 
     socket.emit("room-created", { roomId });
     console.log("Room created with id", roomId);
   };
 
   const joinedRoom = ({ roomId, peerId }: IRoomParams) => {
-    if (rooms[roomId]) { // if the given roomId exists
+    if (rooms[roomId]) {
+      // if the given roomId exists
       console.log(`New user joined room ${roomId} with peerId ${peerId}`);
       rooms[roomId].push(peerId);
-      socket.join(roomId)
+      socket.join(roomId);
 
-
-      socket.emit("get-users",{roomId,participants:rooms[roomId]});
-
-    }   
+      socket.emit("get-users", { roomId, participants: rooms[roomId] });
+    }
   };
 
   // when to call the above function

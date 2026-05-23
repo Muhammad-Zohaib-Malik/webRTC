@@ -7,11 +7,13 @@ import Peer from "peerjs";
 interface SocketContextType {
   socket: Socket | null;
   user: Peer | null;
+  stream: MediaStream | undefined;
 }
 
 const SocketContext = createContext<SocketContextType>({
   socket: null,
   user: null,
+  stream: undefined,
 });
 
 export const useSocket = () => {
@@ -36,10 +38,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   const navigate = useNavigate();
 
   // state variable to store the userId
+
   const [user, setUser] = useState<Peer>(); // new peer user
+  const [stream, setStream] = useState<MediaStream>();
 
- 
-
+  const fetchUserFeed = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    setStream(stream);
+  };
 
   useEffect(() => {
     // Initialize the socket connection
@@ -50,12 +59,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
     const newPeer = new Peer(userId);
     setUser(newPeer);
 
+    fetchUserFeed();
+
     const enterRoom = ({ roomId }: { roomId: string }) => {
       navigate(`/room/${roomId}`);
     };
 
     socket.on("room-created", enterRoom);
-    
 
     // Cleanup on unmount
     return () => {
@@ -64,7 +74,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   }, [url]);
 
   return (
-    <SocketContext.Provider value={{ socket, user }}>
+    <SocketContext.Provider value={{ socket, user, stream }}>
       {children}
     </SocketContext.Provider>
   );
