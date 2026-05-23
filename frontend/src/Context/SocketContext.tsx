@@ -56,7 +56,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
     setSocket(socket);
 
     const userId = uuid();
-    const newPeer = new Peer(userId);
+    const newPeer = new Peer(userId,{
+      host:"localhost",
+      port:9000,
+      path:"/myapp"
+
+    });
     setUser(newPeer);
 
     fetchUserFeed();
